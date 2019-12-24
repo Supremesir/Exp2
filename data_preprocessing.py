@@ -33,7 +33,7 @@ def main():
         print("%s finish!" % os.path.join(stardand_path, 'train', species))
         image_split(original_path, species, stardand_path, 'valid', files[trains_num:trains_num + vaild_num])
         print("%s finish!" % os.path.join(stardand_path, 'valid', species))
-        image_split(original_path, species, stardand_path, 'train', files[trains_num + vaild_num:])
+        image_split(original_path, species, stardand_path, 'test', files[trains_num + vaild_num:])
         print("%s finish!" % os.path.join(stardand_path, 'test', species))
 
 

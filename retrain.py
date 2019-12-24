@@ -14,7 +14,9 @@ def load_data(path, set):
     def _parse_function(filename, label):
 
         image_string = tf.io.read_file(filename)
-        image_decoded = tf.cast(tf.image.decode_image(image_string),
+        image_string = tf.image.decode_image(image_string)
+        image_string.set_shape([224, 224, 3])
+        image_decoded = tf.cast(image_string,
                                 dtype=tf.float32) / tf.constant(255, dtype=tf.float32)
         label = tf.one_hot(label, species_num)
         return image_decoded, label
@@ -25,9 +27,9 @@ def load_data(path, set):
         for img in os.listdir(os.path.join(path, set, species)):
             file_name.append(os.path.join(path, set, species, img))
             labels.append(inds)
-            dateset = tf.data.Dataset.from_tensor_slices((tf.constant(file_name), tf.constant(labels)))
-            dateset = dateset.map(_parse_function)
-            return dateset, len(file_name)
+    dataset = tf.data.Dataset.from_tensor_slices((tf.constant(file_name), tf.constant(labels)))
+    dataset = dataset.map(_parse_function)
+    return dataset, len(file_name)
 
 
 def main():
@@ -39,9 +41,9 @@ def main():
     print('data prepared! train:%d,valid:%d' % (train_num, valid_num))
     # 加载MobileNet模型
     init_model = tf.keras.applications.mobilenet.MobileNet(input_shape=(224, 224, 3),
-                           include_top=False,
-                           weights='imagenet',
-                           pooling='avg')
+                                                           include_top=False,
+                                                           weights='imagenet',
+                                                           pooling='avg')
     # 在网络顶层进行fine-tune操作
     x = tf.keras.layers.Dense(512, activation='relu')(init_model.output)
     output = tf.keras.layers.Dense(species_num, activation='softmax')(x)
@@ -55,10 +57,11 @@ def main():
     # 运行模型
     model.fit(train_dataset, epochs=nb_epoch, steps_per_epoch=int(train_num / batch_size + 1),
               shuffle=True, validation_data=valid_dataset, validation_steps=valid_num)
-    if not os.path.exists('./models/checkpoints'):
-        os.makedirs('./models/checkpoints')  # 新建文件夹
-    model.save_weights('./models/checkpoints/model')  # 保存模型
-    model.save_weights('./models/checkpoints/model_weights_keras.h5', save_format='h5')  # 保存模型为.h5模型
+    if not os.path.exists('./models/'):
+        os.makedirs('./models/')  # 新建文件夹
+    # model.save_weights('./models/checkpoints/model')  # 保存模型
+    # model.save_weights('./models/checkpoints/model_weights_keras.h5', save_format='h5')  # 保存模型为.h5模型
+    model.save('./models/my_model.h5')
 
 
 if __name__ == '__main__':
