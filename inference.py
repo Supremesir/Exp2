@@ -38,5 +38,5 @@ def main(path):
 
 
 if __name__ == '__main__':
-    img_path = 'PlantsData/test/langwei/9.jpg'
+    img_path = 'PlantsData/test/meigui/MEIGUItest.jpg'
     main(img_path)
